@@ -17,6 +17,10 @@ package org.springframework.samples.petclinic.customers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import org.springframework.core.style.ToStringCreator;
 
 import java.util.Date;
@@ -43,14 +47,19 @@ public class Pet {
     private Integer id;
 
     @Column(name = "name")
+    @NotBlank(message = "Pet name cannot be empty")
+    @Size(min = 2, max = 50, message = "Pet name must be between 2 and 50 characters")
     private String name;
 
     @Column(name = "birth_date")
     @Temporal(TemporalType.DATE)
+    @NotNull(message = "Birth date cannot be null")
+    @Past(message = "Birth date must be in the past")
     private Date birthDate;
 
     @ManyToOne
     @JoinColumn(name = "type_id")
+    @NotNull(message = "Pet type cannot be null")
     private PetType type;
 
     @ManyToOne
