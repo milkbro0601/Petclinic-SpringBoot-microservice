@@ -16,6 +16,8 @@
 package org.springframework.samples.petclinic.vets.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -36,6 +38,8 @@ public class Specialty {
     private Integer id;
 
     @Column(name = "name")
+    @NotBlank(message = "Specialty name cannot be empty")
+    @Size(max = 50, message = "Specialty name cannot exceed 50 characters")
     private String name;
 
 }
