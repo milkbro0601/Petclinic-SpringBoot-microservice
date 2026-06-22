@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.customers.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.core.style.ToStringCreator;
@@ -46,25 +47,30 @@ public class Owner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message = "First name cannot be empty")
+    @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
     @Column(name = "first_name")
-    @NotBlank
     private String firstName;
 
     @Column(name = "last_name")
-    @NotBlank
+    @NotBlank(message = "Last name cannot be empty")
+    @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     private String lastName;
 
     @Column(name = "address")
-    @NotBlank
+    @NotBlank(message = "Address cannot be empty")
+    @Size(max = 255, message = "Address cannot exceed 255 characters")
     private String address;
 
     @Column(name = "city")
-    @NotBlank
+    @NotBlank(message = "City cannot be empty")
+    @Size(max = 100, message = "City cannot exceed 100 characters")
     private String city;
 
     @Column(name = "telephone")
-    @NotBlank
-    @Digits(fraction = 0, integer = 12)
+    @NotBlank(message = "Telephone cannot be empty")
+    @Digits(fraction = 0, integer = 12, message = "Telephone must be numbers only")
+    @Size(min = 8, max = 12, message = "Telephone must be between 8 and 12 digits")
     private String telephone;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "owner")
