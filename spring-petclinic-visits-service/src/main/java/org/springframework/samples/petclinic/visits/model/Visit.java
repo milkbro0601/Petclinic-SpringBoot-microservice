@@ -3,19 +3,25 @@ package org.springframework.samples.petclinic.visits.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "visits")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
+@EqualsAndHashCode
 public class Visit {
 
     @Id
@@ -23,9 +29,9 @@ public class Visit {
     private Integer id;
 
     @Column(name = "visit_date")
-    @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date date = new Date();
+    @Builder.Default
+    private LocalDate date = LocalDate.now();
 
     @Size(max = 8192)
     @Column(name = "description")
