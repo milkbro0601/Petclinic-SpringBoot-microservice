@@ -16,6 +16,8 @@
 package org.springframework.samples.petclinic.customers.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -35,6 +37,8 @@ public class PetType {
     private Integer id;
 
     @Column(name = "name")
+    @NotBlank(message = "Pet type name cannot be empty")
+    @Size(max = 50, message = "Pet type name cannot exceed 50 characters")
     private String name;
 
 }
