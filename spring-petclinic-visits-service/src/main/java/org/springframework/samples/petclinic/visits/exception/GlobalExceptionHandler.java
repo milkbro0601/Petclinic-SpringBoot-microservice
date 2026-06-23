@@ -1,7 +1,6 @@
 package org.springframework.samples.petclinic.visits.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.samples.petclinic.customers.web.ResourceNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
