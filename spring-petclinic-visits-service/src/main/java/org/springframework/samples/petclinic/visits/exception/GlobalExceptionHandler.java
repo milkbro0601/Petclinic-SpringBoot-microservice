@@ -33,17 +33,6 @@ public class GlobalExceptionHandler {
         return errors;
     }
 
-    // handles resource not found
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleResourceNotFound(
-        ResourceNotFoundException ex) {
-
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return error;
-    }
-
     // handles any other unexpected error
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

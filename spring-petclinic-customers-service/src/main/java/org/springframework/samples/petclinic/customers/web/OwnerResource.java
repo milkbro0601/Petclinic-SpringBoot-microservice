@@ -51,37 +51,29 @@ class OwnerResource {
         this.ownerRepository = ownerRepository;
         this.ownerEntityMapper = ownerEntityMapper;
     }
-
-    /**
-     * Create Owner
-     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Owner createOwner(@Valid @RequestBody OwnerRequest ownerRequest) {
+        log.info("Request to create owner: {}", ownerRequest);
         Owner owner = ownerEntityMapper.map(new Owner(), ownerRequest);
-        return ownerRepository.save(owner);
+        Owner saved = ownerRepository.save(owner);
+        log.info("Owner saved successfully with id: {}", saved.getId());
+        return saved;
     }
 
-    /**
-     * Read single Owner
-     */
     @GetMapping(value = "/{ownerId}")
     public Owner findOwner(@PathVariable("ownerId") @Min(1) int ownerId) {
+        log.info("Request to find owner with id: {}", ownerId);
         return ownerRepository.findById(ownerId)
             .orElseThrow(() -> new ResourceNotFoundException("Owner " + ownerId + " not found"));
     }
 
-    /**
-     * Read List of Owners
-     */
     @GetMapping
     public List<Owner> findAll() {
+        log.info("Request to get all owners");
         return ownerRepository.findAll();
     }
 
-    /**
-     * Update Owner
-     */
     @PutMapping(value = "/{ownerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateOwner(@PathVariable("ownerId") @Min(1) int ownerId, @Valid @RequestBody OwnerRequest ownerRequest) {
