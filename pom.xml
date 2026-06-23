@@ -25,6 +25,7 @@
         <module>spring-petclinic-discovery-server</module>
         <module>spring-petclinic-api-gateway</module>
         <module>spring-petclinic-treatment-service</module>
+        <module>spring-petclinic-invoice-service</module>
     </modules>
 
     <properties>
