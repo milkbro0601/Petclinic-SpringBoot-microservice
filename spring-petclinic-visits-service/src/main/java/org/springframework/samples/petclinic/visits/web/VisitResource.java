@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.samples.petclinic.customers.exception.ResourceNotFoundException;
 
 /**
  * @author Juergen Hoeller
@@ -60,20 +59,23 @@ class VisitResource {
         @Valid @RequestBody Visit visit,
         @PathVariable("petId") @Min(1) int petId) {
 
+        log.info("Request to create visit for petId: {}", petId);
         visit.setPetId(petId);
-        log.info("Saving visit {}", visit);
-        return visitRepository.save(visit);
+        Visit saved = visitRepository.save(visit);
+        log.info("Visit saved successfully with id: {}", saved.getId());
+        return saved;
     }
 
     @GetMapping("owners/*/pets/{petId}/visits")
     public List<Visit> read(@PathVariable("petId") @Min(1) int petId) {
+        log.info("Request to get visits for petId: {}", petId);
         return visitRepository.findByPetId(petId);
     }
 
     @GetMapping("pets/visits")
     public Visits read(@RequestParam("petId") List<Integer> petIds) {
+        log.info("Request to get visits for petIds: {}", petIds);
         final List<Visit> byPetIdIn = visitRepository.findByPetIdIn(petIds);
-
         return new Visits(byPetIdIn);
     }
 

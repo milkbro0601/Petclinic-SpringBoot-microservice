@@ -58,9 +58,10 @@ class PetResource {
         @RequestBody PetRequest petRequest,
         @PathVariable("ownerId") @Min(1) int ownerId) {
 
+        log.info("Request to create pet for ownerId: {}", ownerId);
         Owner owner = ownerRepository.findById(ownerId)
             .orElseThrow(() -> new ResourceNotFoundException("Owner " + ownerId + " not found"));
-
+            log.warn("Owner with id {} not found", ownerId);
         final Pet pet = new Pet();
         owner.addPet(pet);
         return save(pet, petRequest);
@@ -70,8 +71,10 @@ class PetResource {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void processUpdateForm(@RequestBody PetRequest petRequest) {
         int petId = petRequest.id();
+        log.info("Request to update pet with id: {}", petId);
         Pet pet = findPetById(petId);
         save(pet, petRequest);
+        log.info("Pet updated successfully with id: {}", petId);
     }
 
     private Pet save(final Pet pet, final PetRequest petRequest) {
@@ -88,6 +91,7 @@ class PetResource {
 
     @GetMapping("owners/*/pets/{petId}")
     public PetDetails findPet(@PathVariable("petId") int petId) {
+        log.info("Request to find pet with id: {}", petId);
         Pet pet = findPetById(petId);
         return new PetDetails(pet);
     }
