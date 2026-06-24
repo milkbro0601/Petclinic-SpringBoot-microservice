@@ -1,0 +1,103 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Treatments & Medicines</h2>
+
+            <!-- Treatments Section -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Treatments
+                        <button class="btn btn-sm btn-success pull-right"
+                            ng-click="$ctrl.showForm = !$ctrl.showForm">
+                            + Add Treatment
+                        </button>
+                    </h3>
+                </div>
+
+                <!-- Add Treatment Form -->
+                <div class="panel-body" ng-show="$ctrl.showForm">
+                    <form ng-submit="$ctrl.addTreatment()">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input class="form-control"
+                                ng-model="$ctrl.newTreatment.name"
+                                placeholder="Treatment name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input class="form-control"
+                                ng-model="$ctrl.newTreatment.description"
+                                placeholder="Description">
+                        </div>
+                        <div class="form-group">
+                            <label>Price (RM)</label>
+                            <input class="form-control" type="number"
+                                ng-model="$ctrl.newTreatment.price"
+                                placeholder="0.00" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-default"
+                            ng-click="$ctrl.showForm = false">Cancel</button>
+                    </form>
+                </div>
+
+                <!-- Treatment List -->
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="treatment in $ctrl.treatments">
+                            <td>{{treatment.name}}</td>
+                            <td>{{treatment.description}}</td>
+                            <td>RM {{treatment.price}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger"
+                                    ng-click="$ctrl.deleteTreatment(treatment.id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr ng-if="$ctrl.treatments.length === 0">
+                            <td colspan="4">No treatments found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Medicines Section -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Medicines</h3>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Unit</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="medicine in $ctrl.medicines">
+                            <td>{{medicine.name}}</td>
+                            <td>{{medicine.description}}</td>
+                            <td>{{medicine.unit}}</td>
+                            <td>RM {{medicine.price}}</td>
+                        </tr>
+                        <tr ng-if="$ctrl.medicines.length === 0">
+                            <td colspan="4">No medicines found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
