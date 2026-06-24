@@ -21,6 +21,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import org.springframework.core.style.ToStringCreator;
 
 import java.util.Date;
@@ -65,6 +67,8 @@ public class Pet {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     @JsonIgnore
+    @ToString.Exclude         
+    @EqualsAndHashCode.Exclude
     private Owner owner;
 
     @Override
