@@ -3,21 +3,27 @@ spring:
     name: invoice-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-  cloud:
-    config:
-      override-none: false
-      allow-override: false
-
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/hsqldb/schema.sql
+      data-locations: classpath:db/hsqldb/data.sql
+  datasource:
+    url: jdbc:hsqldb:mem:invoicedb
+    username: sa
+    password:
 server:
-  port: ${SERVER_PORT:8086}
-
+  port: 8086
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
   instance:
     preferIpAddress: true
-
 ---
 spring:
   config:

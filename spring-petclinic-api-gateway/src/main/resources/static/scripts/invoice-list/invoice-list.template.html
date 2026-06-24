@@ -1,0 +1,192 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>
+                Invoices
+                <button class="btn btn-success pull-right"
+                    ng-click="$ctrl.showForm = !$ctrl.showForm">
+                    + Create Invoice
+                </button>
+            </h2>
+
+            <!-- Create Invoice Form -->
+            <div class="panel panel-default" ng-show="$ctrl.showForm">
+                <div class="panel-heading">
+                    <h3 class="panel-title">New Invoice</h3>
+                </div>
+                <div class="panel-body">
+
+                    <!-- Visit and Owner Info -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Visit ID</label>
+                                <input class="form-control" type="number"
+                                    ng-model="$ctrl.newInvoice.visitId"
+                                    placeholder="Enter Visit ID">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Pet ID</label>
+                                <input class="form-control" type="number"
+                                    ng-model="$ctrl.newInvoice.petId"
+                                    placeholder="Enter Pet ID">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Owner ID</label>
+                                <input class="form-control" type="number"
+                                    ng-model="$ctrl.newInvoice.ownerId"
+                                    placeholder="Enter Owner ID">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Treatments -->
+                    <h4>Treatments</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-control"
+                                ng-model="$ctrl.selectedTreatment"
+                                ng-options="t as t.name for t in $ctrl.treatments">
+                                <option value="">Select Treatment</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input class="form-control" type="number"
+                                ng-model="$ctrl.treatmentQty"
+                                placeholder="Quantity" min="1">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary btn-block"
+                                ng-click="$ctrl.addTreatment()">
+                                Add Treatment
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selected Treatments -->
+                    <table class="table table-condensed" ng-show="$ctrl.newInvoice.treatments.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="t in $ctrl.newInvoice.treatments">
+                                <td>{{t.treatmentName}}</td>
+                                <td>{{t.quantity}}</td>
+                                <td>RM {{t.unitPrice}}</td>
+                                <td>RM {{t.unitPrice * t.quantity | number:2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Add Medicines -->
+                    <h4>Medicines</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-control"
+                                ng-model="$ctrl.selectedMedicine"
+                                ng-options="m as m.name for m in $ctrl.medicines">
+                                <option value="">Select Medicine</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input class="form-control" type="number"
+                                ng-model="$ctrl.medicineQty"
+                                placeholder="Quantity" min="1">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary btn-block"
+                                ng-click="$ctrl.addMedicine()">
+                                Add Medicine
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selected Medicines -->
+                    <table class="table table-condensed" ng-show="$ctrl.newInvoice.medicines.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Medicine</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="m in $ctrl.newInvoice.medicines">
+                                <td>{{m.medicineName}}</td>
+                                <td>{{m.quantity}}</td>
+                                <td>RM {{m.unitPrice}}</td>
+                                <td>RM {{m.unitPrice * m.quantity | number:2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Total -->
+                    <h4>Total: RM {{$ctrl.calculateTotal()}}</h4>
+
+                    <!-- Submit -->
+                    <button class="btn btn-success"
+                        ng-click="$ctrl.submitInvoice()">
+                        Create Invoice
+                    </button>
+                    <button class="btn btn-default"
+                        ng-click="$ctrl.showForm = false">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Invoice List -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Visit ID</th>
+                        <th>Pet ID</th>
+                        <th>Owner ID</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="invoice in $ctrl.invoices">
+                        <td>{{invoice.id}}</td>
+                        <td>{{invoice.visitId}}</td>
+                        <td>{{invoice.petId}}</td>
+                        <td>{{invoice.ownerId}}</td>
+                        <td>{{invoice.invoiceDate | date:'yyyy-MM-dd'}}</td>
+                        <td>RM {{invoice.totalAmount}}</td>
+                        <td>
+                            <span class="label"
+                                ng-class="invoice.status === 'PAID' ?
+                                    'label-success' : 'label-warning'">
+                                {{invoice.status}}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success"
+                                ng-show="invoice.status === 'PENDING'"
+                                ng-click="$ctrl.markAsPaid(invoice.id)">
+                                Mark Paid
+                            </button>
+                        </td>
+                    </tr>
+                    <tr ng-if="$ctrl.invoices.length === 0">
+                        <td colspan="8">No invoices found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
