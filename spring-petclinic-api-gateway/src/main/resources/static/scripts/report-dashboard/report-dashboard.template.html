@@ -1,0 +1,195 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Reports Dashboard</h2>
+
+            <!-- Summary Cards -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Today's Visits</div>
+                        <div class="panel-body text-center">
+                            <h1>{{$ctrl.summary.totalVisitsToday || 0}}</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">This Month</div>
+                        <div class="panel-body text-center">
+                            <h1>{{$ctrl.summary.totalVisitsThisMonth || 0}}</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">This Year</div>
+                        <div class="panel-body text-center">
+                            <h1>{{$ctrl.summary.totalVisitsThisYear || 0}}</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">All Time</div>
+                        <div class="panel-body text-center">
+                            <h1>{{$ctrl.summary.totalVisitsAllTime || 0}}</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Busiest info -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Busiest Month</div>
+                        <div class="panel-body text-center">
+                            <h3>{{$ctrl.summary.busiestMonth || 'N/A'}}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Busiest Day</div>
+                        <div class="panel-body text-center">
+                            <h3>{{$ctrl.summary.busiestDay || 'N/A'}}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Report -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Daily Report</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="date" class="form-control"
+                                ng-model="$ctrl.selectedDate">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary"
+                                ng-click="$ctrl.getDailyReport()">
+                                Get Report
+                            </button>
+                        </div>
+                    </div>
+                    <br>
+                    <p>Total visits on {{$ctrl.dailyReport.date}}: 
+                        <strong>{{$ctrl.dailyReport.totalVisits || 0}}</strong>
+                    </p>
+                    <table class="table table-striped" 
+                        ng-show="$ctrl.dailyReport.visits.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Visit ID</th>
+                                <th>Pet ID</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="visit in $ctrl.dailyReport.visits">
+                                <td>{{visit.id}}</td>
+                                <td>{{visit.petId}}</td>
+                                <td>{{visit.description}}</td>
+                                <td>{{visit.date | date:'yyyy-MM-dd'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monthly Report -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Monthly Report</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <input type="number" class="form-control"
+                                ng-model="$ctrl.selectedMonth"
+                                min="1" max="12" placeholder="Month">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control"
+                                ng-model="$ctrl.selectedYear"
+                                placeholder="Year">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary"
+                                ng-click="$ctrl.getMonthlyReport()">
+                                Get Report
+                            </button>
+                        </div>
+                    </div>
+                    <br>
+                    <p>Total visits for month {{$ctrl.monthlyReport.month}}/{{$ctrl.monthlyReport.year}}:
+                        <strong>{{$ctrl.monthlyReport.totalVisits || 0}}</strong>
+                    </p>
+                    <table class="table table-striped"
+                        ng-show="$ctrl.monthlyReport.dailyBreakdown">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Visits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="(date, count) in $ctrl.monthlyReport.dailyBreakdown">
+                                <td>{{date}}</td>
+                                <td>{{count}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Annual Report -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Annual Report</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <input type="number" class="form-control"
+                                ng-model="$ctrl.selectedYear"
+                                placeholder="Year">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary"
+                                ng-click="$ctrl.getAnnualReport()">
+                                Get Report
+                            </button>
+                        </div>
+                    </div>
+                    <br>
+                    <p>Total visits for {{$ctrl.annualReport.year}}:
+                        <strong>{{$ctrl.annualReport.totalVisits || 0}}</strong>
+                    </p>
+                    <table class="table table-striped"
+                        ng-show="$ctrl.annualReport.monthlyBreakdown">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Visits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="(month, count) in $ctrl.annualReport.monthlyBreakdown">
+                                <td>{{month}}</td>
+                                <td>{{count}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
