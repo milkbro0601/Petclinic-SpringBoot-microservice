@@ -7,7 +7,7 @@ angular.module('reportDashboard')
         self.dailyReport = {};
         self.monthlyReport = {};
         self.annualReport = {};
-        self.selectedDate = new Date().toISOString().split('T')[0];
+        self.selectedDate = new Date().toISOString().split('T')[0];  
         self.selectedMonth = new Date().getMonth() + 1;
         self.selectedYear = new Date().getFullYear();
 
@@ -18,8 +18,18 @@ angular.module('reportDashboard')
             });
 
         // Get daily report
-        self.getDailyReport = function() {
-            $http.get('api/report/reports/daily?date=' + self.selectedDate)
+       self.getDailyReport = function() {
+            var dateStr;
+            if (self.selectedDate instanceof Date) {
+                // format Date object to yyyy-MM-dd
+                var d = self.selectedDate;
+                dateStr = d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+            } else {
+                dateStr = self.selectedDate;
+            }
+            $http.get('api/report/reports/daily?date=' + dateStr)
                 .then(function(resp) {
                     self.dailyReport = resp.data;
                 });
