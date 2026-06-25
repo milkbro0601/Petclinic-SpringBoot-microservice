@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.samples.petclinic.invoice.exception.ResourceNotFoundException;
 import org.springframework.samples.petclinic.invoice.model.*;
 import org.springframework.web.bind.annotation.*;
+import java.util.Date;
 
 import java.util.List;
 
@@ -57,6 +58,9 @@ public class InvoiceResource {
     @ResponseStatus(HttpStatus.CREATED)
     public Invoice createInvoice(@Valid @RequestBody Invoice invoice) {
         log.info("Request to create invoice for visitId: {}", invoice.getVisitId());
+
+        invoice.setInvoiceDate(new Date());
+        invoice.setStatus(InvoiceStatus.PENDING);
 
         // calculate subtotals for treatments
         invoice.getTreatments().forEach(t -> {
