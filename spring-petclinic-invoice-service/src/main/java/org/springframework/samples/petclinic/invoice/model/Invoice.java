@@ -3,10 +3,13 @@ package org.springframework.samples.petclinic.invoice.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,10 +18,13 @@ import java.util.List;
 
 @Entity
 @Table(name = "invoices")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
+@EqualsAndHashCode
 public class Invoice {
 
     @Id
@@ -40,23 +46,26 @@ public class Invoice {
     @Column(name = "owner_id")
     private Integer ownerId;
 
+    @Builder.Default
     @Column(name = "invoice_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date invoiceDate = new Date();
 
+    @Builder.Default
     @Column(name = "total_amount")
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private InvoiceStatus status = InvoiceStatus.PENDING;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoice", fetch = FetchType.EAGER)
     @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoice", fetch = FetchType.EAGER)
     private List<InvoiceTreatment> treatments = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoice", fetch = FetchType.EAGER)
     @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "invoice", fetch = FetchType.EAGER)
     private List<InvoiceMedicine> medicines = new ArrayList<>();
 
     public void calculateTotal() {
