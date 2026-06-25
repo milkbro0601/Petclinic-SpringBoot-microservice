@@ -79,6 +79,12 @@ class VisitResource {
         return new Visits(byPetIdIn);
     }
 
+    @GetMapping("visits")
+    public List<Visit> readAll() {
+        log.info("Request to get all visits");
+        return visitRepository.findAll();
+    }
+
     record Visits(
         List<Visit> items
     ) {

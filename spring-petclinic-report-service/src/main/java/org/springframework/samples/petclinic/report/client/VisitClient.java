@@ -20,7 +20,7 @@ public class VisitClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${visits.service.url:http://localhost:8082}")
+    @Value("${visits.service.url:http://localhost:8080/api/visit}")
     private String visitsServiceUrl;
 
     public VisitClient(RestTemplate restTemplate) {
@@ -29,19 +29,18 @@ public class VisitClient {
 
     public List<VisitResponse> getAllVisits() {
         try {
-            log.info("Fetching all visits from visits-service");
-            ResponseEntity<List<VisitResponse>> response = restTemplate.exchange(
-                visitsServiceUrl + "/visits",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<VisitResponse>>() {}
-            );
-            List<VisitResponse> visits = response.getBody();
-            log.info("Fetched {} visits from visits-service", visits != null ? visits.size() : 0);
-            return visits != null ? visits : new ArrayList<>();
+            String url = visitsServiceUrl + "/pets/visits?petId=1,2,3,4,5,6,7,8,9,10";
+            log.info("Fetching all visits from visits-service at {}", url);
+            VisitsResponse response = restTemplate.getForObject(url, VisitsResponse.class);
+            List<VisitResponse> visits = response != null ? response.items() : new ArrayList<>();
+            log.info("Fetched {} visits", visits.size());
+            return visits;
         } catch (Exception e) {
-            log.error("Error fetching visits from visits-service: {}", e.getMessage());
+            log.error("Error fetching visits: {}", e.getMessage(), e);
             return new ArrayList<>();
         }
+    }
+
+    private record VisitsResponse(List<VisitResponse> items) {
     }
 }
