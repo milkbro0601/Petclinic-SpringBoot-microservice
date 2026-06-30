@@ -1,25 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
-const MOCK_DATA = {
-    Daily: [{ date: '2026-06-29', visits: 0 }],
-    Monthly: [
-        { date: '2026-06-25', visits: 1 },
-        { date: '2026-06-23', visits: 1 },
-        { date: '2026-06-22', visits: 1 },
-        { date: '2026-06-21', visits: 1 },
-        { date: '2026-06-20', visits: 1 },
-    ],
-    Annual: [{ date: '2026', visits: 5 }]
-};
+import { getReportSummary, getDailyReport, getMonthlyReport, getAnnualReport } from '../service/api';
 
 export default function ReportsScreen() {
     const [filter, setFilter] = useState('Daily');
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
-    const [month, setMonth] = useState(6);
-    const [year, setYear] = useState(2026);
+    const [month, setMonth] = useState(new Date().getMonth() + 1);
+    const [year, setYear] = useState(new Date().getFullYear());
+
+    const [summary, setSummary] = useState(null);
+    const [dailyData, setDailyData] = useState(null);
+    const [monthlyData, setMonthlyData] = useState(null);
+    const [annualData, setAnnualData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const formatDate = (d) => {
         const yyyy = d.getFullYear();
@@ -28,10 +23,63 @@ export default function ReportsScreen() {
         return `${yyyy}-${mm}-${dd}`;
     };
 
+    useEffect(() => {
+        fetchSummary();
+        fetchDaily();
+        fetchMonthly();
+        fetchAnnual();
+    }, []);
+
+    const fetchSummary = async () => {
+        try {
+            const res = await getReportSummary();
+            setSummary(res.data);
+        } catch (err) { console.log(err); }
+        finally { setLoading(false); }
+    };
+
+    const fetchDaily = async () => {
+        try {
+            const res = await getDailyReport(formatDate(date));
+            setDailyData(res.data);
+        } catch (err) { console.log(err); }
+    };
+
+    const fetchMonthly = async () => {
+        try {
+            const res = await getMonthlyReport(month, year);
+            setMonthlyData(res.data);
+        } catch (err) { console.log(err); }
+    };
+
+    const fetchAnnual = async () => {
+        try {
+            const res = await getAnnualReport(year);
+            setAnnualData(res.data);
+        } catch (err) { console.log(err); }
+    };
+
     const onChange = (event, selectedDate) => {
         setShow(false);
-        if (selectedDate) setDate(selectedDate);
+        if (selectedDate) {
+            setDate(selectedDate);
+            getDailyReport(formatDate(selectedDate)).then(res => setDailyData(res.data));
+        }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#4CAF50" />
+            </View>
+        );
+    }
+
+    const tableData = filter === 'Daily'
+        ? (dailyData?.visits || []).map(v => ({ date: v.date, visits: 1 }))
+        : filter === 'Monthly'
+            ? Object.entries(monthlyData?.dailyBreakdown || {}).map(([date, visits]) => ({ date, visits }))
+            : Object.entries(annualData?.monthlyBreakdown || {}).map(([date, visits]) => ({ date, visits }));
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
@@ -40,21 +88,21 @@ export default function ReportsScreen() {
             <View style={styles.row}>
                 <View style={styles.kpiCard}>
                     <Text style={styles.kpiLabel}>Today</Text>
-                    <Text style={styles.kpiValue}>0</Text>
+                    <Text style={styles.kpiValue}>{summary?.totalVisitsToday || 0}</Text>
                 </View>
                 <View style={styles.kpiCard}>
                     <Text style={styles.kpiLabel}>This Month</Text>
-                    <Text style={styles.kpiValue}>5</Text>
+                    <Text style={styles.kpiValue}>{summary?.totalVisitsThisMonth || 0}</Text>
                 </View>
             </View>
             <View style={styles.row}>
                 <View style={styles.kpiCard}>
                     <Text style={styles.kpiLabel}>This Year</Text>
-                    <Text style={styles.kpiValue}>5</Text>
+                    <Text style={styles.kpiValue}>{summary?.totalVisitsThisYear || 0}</Text>
                 </View>
                 <View style={styles.kpiCard}>
                     <Text style={styles.kpiLabel}>All Time</Text>
-                    <Text style={styles.kpiValue}>9</Text>
+                    <Text style={styles.kpiValue}>{summary?.totalVisitsAllTime || 0}</Text>
                 </View>
             </View>
 
@@ -76,21 +124,14 @@ export default function ReportsScreen() {
             {filter === 'Daily' && (
                 <View style={styles.filterBox}>
                     <Text style={styles.filterLabel}>Select Date</Text>
-                    <TouchableOpacity
-                        style={styles.dateInput}
-                        onPress={() => setShow(true)}>
+                    <TouchableOpacity style={styles.dateInput} onPress={() => setShow(true)}>
                         <Text style={styles.dateText}>📅  {formatDate(date)}</Text>
                     </TouchableOpacity>
                     {show && (
-                        <DateTimePicker
-                            value={date}
-                            mode="date"
-                            display="spinner"
-                            onChange={onChange}
-                        />
+                        <DateTimePicker value={date} mode="date" display="spinner" onChange={onChange} />
                     )}
                     <Text style={styles.resultText}>
-                        Total visits on <Text style={styles.bold}>{formatDate(date)}</Text>: <Text style={styles.bold}>0</Text>
+                        Total visits on <Text style={styles.bold}>{formatDate(date)}</Text>: <Text style={styles.bold}>{dailyData?.totalVisits || 0}</Text>
                     </Text>
                 </View>
             )}
@@ -98,22 +139,8 @@ export default function ReportsScreen() {
             {/* Monthly Filter */}
             {filter === 'Monthly' && (
                 <View style={styles.filterBox}>
-                    <View style={styles.row}>
-                        <View style={styles.halfInput}>
-                            <Text style={styles.filterLabel}>Month</Text>
-                            <View style={styles.dateInput}>
-                                <Text style={styles.dateText}>{month}</Text>
-                            </View>
-                        </View>
-                        <View style={styles.halfInput}>
-                            <Text style={styles.filterLabel}>Year</Text>
-                            <View style={styles.dateInput}>
-                                <Text style={styles.dateText}>{year}</Text>
-                            </View>
-                        </View>
-                    </View>
                     <Text style={styles.resultText}>
-                        Total visits for <Text style={styles.bold}>{month}/{year}</Text>: <Text style={styles.bold}>5</Text>
+                        Total visits for <Text style={styles.bold}>{month}/{year}</Text>: <Text style={styles.bold}>{monthlyData?.totalVisits || 0}</Text>
                     </Text>
                 </View>
             )}
@@ -121,12 +148,8 @@ export default function ReportsScreen() {
             {/* Annual Filter */}
             {filter === 'Annual' && (
                 <View style={styles.filterBox}>
-                    <Text style={styles.filterLabel}>Year</Text>
-                    <View style={styles.dateInput}>
-                        <Text style={styles.dateText}>{year}</Text>
-                    </View>
                     <Text style={styles.resultText}>
-                        Total visits for <Text style={styles.bold}>{year}</Text>: <Text style={styles.bold}>5</Text>
+                        Total visits for <Text style={styles.bold}>{year}</Text>: <Text style={styles.bold}>{annualData?.totalVisits || 0}</Text>
                     </Text>
                 </View>
             )}
@@ -137,9 +160,8 @@ export default function ReportsScreen() {
                     <Text style={styles.headerText}>Date</Text>
                     <Text style={styles.headerText}>Visits</Text>
                 </View>
-                {MOCK_DATA[filter].map((item, index) => (
-                    <View key={index} style={[styles.tableRow,
-                        index % 2 === 0 && { backgroundColor: '#f9f9f9' }]}>
+                {tableData.map((item, index) => (
+                    <View key={index} style={[styles.tableRow, index % 2 === 0 && { backgroundColor: '#f9f9f9' }]}>
                         <Text style={styles.tableCell}>{item.date}</Text>
                         <Text style={styles.tableCell}>{item.visits}</Text>
                     </View>
@@ -152,81 +174,26 @@ export default function ReportsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5' },
+    centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     scrollContent: { padding: 15, paddingBottom: 30 },
     row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-    kpiCard: {
-        backgroundColor: '#fff',
-        width: '48%',
-        padding: 20,
-        borderRadius: 12,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-    },
+    kpiCard: { backgroundColor: '#fff', width: '48%', padding: 20, borderRadius: 12, alignItems: 'center' },
     kpiLabel: { color: '#666', fontSize: 13 },
     kpiValue: { fontSize: 28, fontWeight: 'bold', color: '#4CAF50', marginTop: 5 },
-    toggleContainer: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        padding: 5,
-        borderRadius: 10,
-        marginVertical: 15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-    },
+    toggleContainer: { flexDirection: 'row', backgroundColor: '#fff', padding: 5, borderRadius: 10, marginVertical: 15 },
     toggleButton: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
     activeButton: { backgroundColor: '#4CAF50' },
     toggleText: { fontWeight: '600', color: '#555' },
     activeText: { color: '#fff', fontWeight: '600' },
-    filterBox: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 15,
-        marginBottom: 15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-    },
+    filterBox: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15 },
     filterLabel: { fontSize: 13, color: '#666', marginBottom: 6 },
-    halfInput: { width: '48%' },
-    dateInput: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 10,
-        backgroundColor: '#fafafa',
-    },
+    dateInput: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, marginBottom: 10, backgroundColor: '#fafafa' },
     dateText: { fontSize: 15, color: '#333' },
     resultText: { fontSize: 14, color: '#555', marginTop: 5 },
     bold: { fontWeight: 'bold', color: '#333' },
-    table: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-    },
-    tableHeader: {
-        flexDirection: 'row',
-        backgroundColor: '#333',
-        padding: 12,
-        justifyContent: 'space-between',
-    },
+    table: { backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden' },
+    tableHeader: { flexDirection: 'row', backgroundColor: '#333', padding: 12, justifyContent: 'space-between' },
     headerText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-    tableRow: {
-        flexDirection: 'row',
-        padding: 12,
-        borderBottomWidth: 1,
-        borderColor: '#eee',
-        justifyContent: 'space-between',
-    },
+    tableRow: { flexDirection: 'row', padding: 12, borderBottomWidth: 1, borderColor: '#eee', justifyContent: 'space-between' },
     tableCell: { fontSize: 14, color: '#333' },
 });
