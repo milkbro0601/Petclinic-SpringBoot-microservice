@@ -1,17 +1,45 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-const mockSummary = {
-    totalVisitsToday: 1,
-    totalVisitsThisMonth: 5,
-    totalVisitsThisYear: 9,
-    totalVisitsAllTime: 9,
-    busiestMonth: 'June',
-    busiestDay: 'Thursday'
-};
+import { useState, useEffect } from 'react';
+import { getReportSummary } from '../service/api';
 
 export default function HomeScreen() {
     const navigation = useNavigation();
+    const [summary, setSummary] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchSummary();
+    }, []);
+
+    const fetchSummary = async () => {
+        try {
+            setLoading(true);
+            const res = await getReportSummary();
+            setSummary(res.data);
+        } catch (err) {
+            console.log(err);
+            // Fallback to default values if API fails
+            setSummary({
+                totalVisitsToday: 0,
+                totalVisitsThisMonth: 0,
+                totalVisitsThisYear: 0,
+                totalVisitsAllTime: 0,
+                busiestMonth: 'N/A',
+                busiestDay: 'N/A'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#4CAF50" />
+            </View>
+        );
+    }
 
     return (
         <ScrollView style={styles.container}>
@@ -26,21 +54,21 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>📊 Visit Summary</Text>
             <View style={styles.cardRow}>
                 <View style={[styles.card, { backgroundColor: '#4CAF50' }]}>
-                    <Text style={styles.cardNumber}>{mockSummary.totalVisitsToday}</Text>
+                    <Text style={styles.cardNumber}>{summary?.totalVisitsToday || 0}</Text>
                     <Text style={styles.cardLabel}>Today</Text>
                 </View>
                 <View style={[styles.card, { backgroundColor: '#2196F3' }]}>
-                    <Text style={styles.cardNumber}>{mockSummary.totalVisitsThisMonth}</Text>
+                    <Text style={styles.cardNumber}>{summary?.totalVisitsThisMonth || 0}</Text>
                     <Text style={styles.cardLabel}>This Month</Text>
                 </View>
             </View>
             <View style={styles.cardRow}>
                 <View style={[styles.card, { backgroundColor: '#FF9800' }]}>
-                    <Text style={styles.cardNumber}>{mockSummary.totalVisitsThisYear}</Text>
+                    <Text style={styles.cardNumber}>{summary?.totalVisitsThisYear || 0}</Text>
                     <Text style={styles.cardLabel}>This Year</Text>
                 </View>
                 <View style={[styles.card, { backgroundColor: '#9C27B0' }]}>
-                    <Text style={styles.cardNumber}>{mockSummary.totalVisitsAllTime}</Text>
+                    <Text style={styles.cardNumber}>{summary?.totalVisitsAllTime || 0}</Text>
                     <Text style={styles.cardLabel}>All Time</Text>
                 </View>
             </View>
@@ -50,12 +78,12 @@ export default function HomeScreen() {
             <View style={styles.infoBox}>
                 <View style={styles.infoRow}>
                     <Text style={styles.infoLabel}>🗓 Busiest Month</Text>
-                    <Text style={styles.infoValue}>{mockSummary.busiestMonth}</Text>
+                    <Text style={styles.infoValue}>{summary?.busiestMonth || 'N/A'}</Text>
                 </View>
                 <View style={styles.divider} />
                 <View style={styles.infoRow}>
                     <Text style={styles.infoLabel}>📅 Busiest Day</Text>
-                    <Text style={styles.infoValue}>{mockSummary.busiestDay}</Text>
+                    <Text style={styles.infoValue}>{summary?.busiestDay || 'N/A'}</Text>
                 </View>
             </View>
 
@@ -98,6 +126,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     header: {
         backgroundColor: '#4CAF50',
