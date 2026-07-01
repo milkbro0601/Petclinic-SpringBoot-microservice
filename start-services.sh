@@ -13,3 +13,6 @@ sleep 20
 ./mvnw spring-boot:run -pl spring-petclinic-report-service -Dspring-boot.run.jvmArguments="-Dserver.port=8087" &
 ./mvnw spring-boot:run -pl spring-petclinic-api-gateway &
 
+
+cd spring-petclinic-genai-service 
+../mvnw spring-boot:run
