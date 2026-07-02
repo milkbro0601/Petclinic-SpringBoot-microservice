@@ -6,7 +6,9 @@ A microservices-based veterinary clinic management platform, extended from the o
 
 ## Overview
 
-This project is built on the Spring Cloud microservices architecture and demonstrates a complete clinic management workflow spanning customer and pet records, veterinary staff, scheduled visits, treatments and medicines, billing and invoicing, operational reporting, and an AI assistant powered by a locally hosted LLM.
+This project extends the Spring PetClinic sample into a full microservices-based veterinary clinic platform with new business capabilities, a redesigned API gateway layer, a native mobile application, and a locally hosted GenAI assistant.
+
+The work in this branch focuses on delivering a complete clinic management workflow spanning customer and pet records, veterinary staff, scheduled visits, treatments and medicines, billing and invoicing, operational reporting, and AI-assisted interactions.
 
 The platform is delivered across three surfaces:
 
@@ -74,6 +76,16 @@ Treatment, Invoice, and Report services were newly designed and implemented as p
 
 ---
 
+## What Changed in This Branch
+
+This branch adds and integrates several new capabilities across the platform:
+
+- New domain services for treatments, invoicing, and reporting
+- API gateway routing and service integration improvements
+- A React Native / Expo mobile application consuming the same backend APIs as the web app
+- A GenAI assistant powered by a locally hosted Ollama model
+- End-to-end local setup and verification instructions for backend, web, mobile, and AI flows
+
 ## Key Capabilities
 
 ### Customer and Pet Management
@@ -92,7 +104,7 @@ Invoice generation tied to a visit, owner, and pet, with line items for treatmen
 Daily, monthly, and annual visit analytics aggregated from the Visits Service, including busiest-day and busiest-month insights, exposed via the Report Service and surfaced on both web and mobile dashboards.
 
 ### AI Assistant
-A locally hosted Ollama LLM integration exposed through the GenAI Service, providing conversational assistance within the web application.
+A locally hosted Ollama LLM integration exposed through the GenAI Service, providing conversational assistance within the web application. The current setup is suitable for local development and demonstration use, while more complex tool-calling scenarios may benefit from a stronger model in the future.
 
 ---
 
@@ -133,6 +145,15 @@ All mobile screens are connected to the same backend API Gateway used by the web
 ---
 
 ## Getting Started
+
+### Quick Start Summary
+
+To run the full local experience:
+
+1. Start the backend infrastructure services
+2. Launch the web and mobile clients
+3. Start the GenAI service with Ollama
+4. Verify the AI endpoint through the API gateway
 
 ### Prerequisites
 - Java 17+ (JDK 26 recommended for local development)
