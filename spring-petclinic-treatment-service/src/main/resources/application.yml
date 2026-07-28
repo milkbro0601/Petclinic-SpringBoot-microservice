@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: treatment-service
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/hsqldb/schema.sql
+      data-locations: classpath:db/hsqldb/data.sql
+  datasource:
+    url: jdbc:hsqldb:mem:treatmentdb
+    username: sa
+    password:
+server:
+  port: 8085
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+    import: configserver:http://config-server:8888
