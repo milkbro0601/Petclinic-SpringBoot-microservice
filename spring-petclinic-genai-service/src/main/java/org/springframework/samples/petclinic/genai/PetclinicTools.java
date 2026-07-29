@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
-import org.springframework.samples.petclinic.genai.dto.OwnerDetails;
-import org.springframework.samples.petclinic.genai.dto.PetDetails;
-import org.springframework.samples.petclinic.genai.dto.PetRequest;
-import org.springframework.samples.petclinic.genai.dto.Vet;
+import org.springframework.samples.petclinic.genai.dto.*;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import jakarta.validation.constraints.Digits;
@@ -70,6 +67,53 @@ class PetclinicTools {
         LOG.info("addPetToOwner() ownerId={} petRequest={}", ownerId, petRequest);
 		return petclinicAiProvider.addPetToOwner(ownerId, petRequest);
 	}
+
+    @Tool(description = "List all treatments the clinic offers with prices")
+    public List<TreatmentDetails> listTreatments() {
+        return petclinicAiProvider.getAllTreatments();
+    }
+
+    @Tool(description = "List all medicines the clinic stocks with prices")
+    public List<MedicineDetails> listMedicines() {
+        return petclinicAiProvider.getAllMedicines();
+    }
+
+    @Tool(description = "Get all invoices for a specific owner, identified by ownerId")
+    public List<InvoiceDetails> getInvoicesForOwner(@ToolParam(description = "Owner's identifier") int ownerId) {
+        return petclinicAiProvider.getInvoicesByOwner(ownerId);
+    }
+
+    @Tool(description = "Get all invoices for a specific pet, identified by petId")
+    public List<InvoiceDetails> getInvoicesForPet(@ToolParam(description = "Pet's identifier") int petId) {
+        return petclinicAiProvider.getInvoicesByPet(petId);
+    }
+
+    @Tool(description = "Mark an invoice as PAID once the owner has completed payment. Requires the invoice ID.")
+    public String markInvoiceAsPaid(@ToolParam(description = "Invoice identifier") int invoiceId) {
+        petclinicAiProvider.markInvoiceAsPaid(invoiceId);
+        return "Invoice " + invoiceId + " has been marked as paid.";
+    }
+
+    @Tool(description = "Get the clinic's visit report for a specific day. Date format yyyy-MM-dd, defaults to today if omitted.")
+    public DailyReportDetails getDailyReport(@ToolParam(required = false) String date) {
+        return petclinicAiProvider.getDailyReport(date);
+    }
+
+    @Tool(description = "Get the clinic's visit report for a specific month and year")
+    public MonthlyReportDetails getMonthlyReport(@ToolParam(required = false) Integer month,
+                                                 @ToolParam(required = false) Integer year) {
+        return petclinicAiProvider.getMonthlyReport(month, year);
+    }
+
+    @Tool(description = "Get the clinic's visit report for a specific year")
+    public AnnualReportDetails getAnnualReport(@ToolParam(required = false) Integer year) {
+        return petclinicAiProvider.getAnnualReport(year);
+    }
+
+    @Tool(description = "Get an overall summary of clinic visits: totals for today, this month, this year, and busiest day/month")
+    public SummaryReportDetails getClinicSummary() {
+        return petclinicAiProvider.getSummaryReport();
+    }
 
 }
 

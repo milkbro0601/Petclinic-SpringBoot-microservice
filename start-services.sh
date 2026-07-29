@@ -19,3 +19,6 @@ lsof -i :8888
 
 #kill server port running
 kill -9 $(lsof -t -i :8888)
+
+#quick clean before run
+./mvnw clean install -pl spring-petclinic-genai-service -DskipTests
