@@ -1,4 +1,5 @@
 package org.springframework.samples.petclinic.genai.dto;
 
-public record PetType(String name) {
+public enum InvoiceStatus {
+    PENDING, PAID, CANCELLED
 }
