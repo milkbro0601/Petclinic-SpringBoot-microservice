@@ -12,7 +12,10 @@ sleep 20
 ./mvnw spring-boot:run -pl spring-petclinic-invoice-service -Dspring-boot.run.jvmArguments="-Dserver.port=8086" &
 ./mvnw spring-boot:run -pl spring-petclinic-report-service -Dspring-boot.run.jvmArguments="-Dserver.port=8087" &
 ./mvnw spring-boot:run -pl spring-petclinic-api-gateway &
+./mvnw spring-boot:run -pl spring-petclinic-genai-service -Dspring-boot.run.jvmArguments="-Dserver.port=8084"
 
+#check port is free
+lsof -i :8888
 
-cd spring-petclinic-genai-service 
-../mvnw spring-boot:run
+#kill server port running
+kill -9 $(lsof -t -i :8888)
