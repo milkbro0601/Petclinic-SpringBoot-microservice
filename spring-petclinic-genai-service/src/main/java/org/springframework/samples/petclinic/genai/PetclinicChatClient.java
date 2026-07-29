@@ -54,24 +54,19 @@ public class PetclinicChatClient {
 				.build();
   }
 
-  @PostMapping("/chatclient")
-  public String exchange(@RequestBody String query) {
-	  try {
-		  //All chatbot messages go through this endpoint
-		  //and are passed to the LLM
-		  LOG.info("Processing chat query: {}", query);
-		  return this.chatClient
-              .prompt()
-              .user(query)
-              .call()
-              .content();
-	  } catch (Exception exception) {
-          LOG.error("Error processing chat message for query: {}", query, exception);
-          LOG.error("Exception details - Type: {}, Message: {}", exception.getClass().getName(), exception.getMessage());
-          for (StackTraceElement element : exception.getStackTrace()) {
-              LOG.error("  at {}", element);
-          }
- 	      return "Chat is currently unavailable. Please try again later. Error: " + exception.getMessage();
-	  }
-  }
+    @PostMapping("/chatclient")
+    public String exchange(@RequestBody String query) {
+        try {
+            LOG.info("Processing chat query: {}", query);
+            return this.chatClient
+                .prompt()
+                .user(query)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, "default"))
+                .call()
+                .content();
+        } catch (Exception exception) {
+            LOG.error("Error processing chat message for query: {}", query, exception);
+            return "Chat is currently unavailable. Please try again later. Error: " + exception.getMessage();
+        }
+    }
 }
