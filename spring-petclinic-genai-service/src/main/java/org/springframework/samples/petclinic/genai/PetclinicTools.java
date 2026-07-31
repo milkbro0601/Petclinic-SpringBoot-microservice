@@ -68,6 +68,31 @@ class PetclinicTools {
 		return petclinicAiProvider.addPetToOwner(ownerId, petRequest);
 	}
 
+    @Tool(description = """
+    Update an existing owner's details, identified by ownerId. This replaces the full record,
+    so first name, last name, address, city, and a 10-digit phone number must all be provided
+    even if only one field is changing — fetch the owner's current details first if unsure.
+    """)
+    public String updateOwner(@ToolParam(description = "Owner's identifier") int ownerId, OwnerRequest ownerRequest) {
+        LOG.info("updateOwner() ownerId={} ownerRequest={}", ownerId, ownerRequest);
+        petclinicAiProvider.updateOwner(ownerId, ownerRequest);
+        return "Owner " + ownerId + " has been updated.";
+    }
+
+    @Tool(description = """
+        Update an existing pet's details, identified by ownerId and petId. This replaces the full
+        record, so name, birth date, and pet type ID must all be provided even if only one field
+        is changing — fetch the pet's current details first if unsure.
+        The allowed Pet types IDs are only: 1 = cat, 2 = dog, 3 = lizard, 4 = snake, 5 = bird, 6 = hamster
+        """)
+    public String updatePet(@ToolParam(description = "Pet's owner identifier") int ownerId,
+                            @ToolParam(description = "Pet's identifier") int petId,
+                            PetRequest petRequest) {
+        LOG.info("updatePet() ownerId={} petId={} petRequest={}", ownerId, petId, petRequest);
+        petclinicAiProvider.updatePet(ownerId, petId, petRequest);
+        return "Pet " + petId + " has been updated.";
+    }
+
     @Tool(description = "List all treatments the clinic offers with prices")
     public List<TreatmentDetails> listTreatments() {
         return petclinicAiProvider.getAllTreatments();
@@ -86,12 +111,6 @@ class PetclinicTools {
     @Tool(description = "Get all invoices for a specific pet, identified by petId")
     public List<InvoiceDetails> getInvoicesForPet(@ToolParam(description = "Pet's identifier") int petId) {
         return petclinicAiProvider.getInvoicesByPet(petId);
-    }
-
-    @Tool(description = "Mark an invoice as PAID once the owner has completed payment. Requires the invoice ID.")
-    public String markInvoiceAsPaid(@ToolParam(description = "Invoice identifier") int invoiceId) {
-        petclinicAiProvider.markInvoiceAsPaid(invoiceId);
-        return "Invoice " + invoiceId + " has been marked as paid.";
     }
 
     @Tool(description = "Get the clinic's visit report for a specific day. Date format yyyy-MM-dd, defaults to today if omitted.")

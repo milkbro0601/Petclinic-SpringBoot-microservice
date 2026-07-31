@@ -117,6 +117,39 @@ public class AIDataProvider {
        }
 	}
 
+    public void updateOwner(int ownerId, OwnerRequest ownerRequest) {
+    try {
+        LOG.info("Updating owner {} with request: {}", ownerId, ownerRequest);
+        restClient
+            .put()
+            .uri(getCustomerServiceUri() + "/owners/" + ownerId)
+            .body(ownerRequest)
+            .retrieve()
+            .toBodilessEntity();
+        LOG.info("Successfully updated owner {}", ownerId);
+    } catch (Exception e) {
+        LOG.error("Error updating owner {}", ownerId, e);
+        throw e;
+    }
+}
+
+public void updatePet(int ownerId, int petId, PetRequest petRequest) {
+    try {
+        PetRequest correctedRequest = new PetRequest(petId, petRequest.birthDate(), petRequest.name(), petRequest.typeId());
+        LOG.info("Updating pet {} for owner {} with request: {}", petId, ownerId, correctedRequest);
+        restClient
+            .put()
+            .uri(getCustomerServiceUri() + "/owners/" + ownerId + "/pets/" + petId)
+            .body(correctedRequest)
+            .retrieve()
+            .toBodilessEntity();
+        LOG.info("Successfully updated pet {}", petId);
+    } catch (Exception e) {
+        LOG.error("Error updating pet {}", petId, e);
+        throw e;
+    }
+}
+
     @NotNull
     private URI getCustomerServiceUri() {
         return discoveryClient.getInstances("customers-service").get(0).getUri();
