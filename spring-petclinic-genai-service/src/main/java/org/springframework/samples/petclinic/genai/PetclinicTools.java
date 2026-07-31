@@ -115,6 +115,19 @@ class PetclinicTools {
         return petclinicAiProvider.getSummaryReport();
     }
 
+    @Tool(description = """
+    Mark an invoice as PAID. IMPORTANT: only call this with confirmed=true after the user
+    has explicitly said yes to a confirmation you asked them. On the first call, if you
+    are not certain the user confirmed, call with confirmed=false to get a preview instead.
+    """)
+    public String markInvoiceAsPaid(@ToolParam(description = "Invoice identifier") int invoiceId,
+                                    @ToolParam(description = "Set true only after explicit user confirmation") boolean confirmed) {
+        if (!confirmed) {
+            return "This will mark invoice " + invoiceId + " as PAID. Please confirm with the user before proceeding, then call again with confirmed=true.";
+        }
+        petclinicAiProvider.markInvoiceAsPaid(invoiceId);
+        return "Invoice " + invoiceId + " has been marked as paid.";
+    }
 }
 
 record OwnerRequest(@NotBlank String firstName,

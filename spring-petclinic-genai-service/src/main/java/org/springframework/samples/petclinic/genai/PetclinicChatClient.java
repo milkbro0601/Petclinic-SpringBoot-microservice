@@ -6,10 +6,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * This REST controller is being invoked by the in order to interact with the LLM
@@ -55,18 +52,19 @@ public class PetclinicChatClient {
   }
 
     @PostMapping("/chatclient")
-    public String exchange(@RequestBody String query) {
+    public String exchange(@RequestBody String query, @RequestHeader(value = "X-Conversation-Id", required = false) String conversationId) {
+        String convId = (conversationId != null && !conversationId.isBlank()) ? conversationId : "default";
         try {
-            LOG.info("Processing chat query: {}", query);
+            LOG.info("Processing chat query [conv={}]: {}", convId, query);
             return this.chatClient
                 .prompt()
                 .user(query)
-                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, "default"))
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, convId))
                 .call()
                 .content();
         } catch (Exception exception) {
             LOG.error("Error processing chat message for query: {}", query, exception);
-            return "Chat is currently unavailable. Please try again later. Error: " + exception.getMessage();
+            return "Chat is currently unavailable. Please try again later.";
         }
     }
 }
